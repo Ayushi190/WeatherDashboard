@@ -1,25 +1,35 @@
-import logo from './logo.svg';
+import React, { useContext, useEffect } from 'react';
+import WeatherContextProvider, { WeatherContext } from './context/WeatherContext';
+import SearchBar from './components/SearchBar/SearchBar.js';
+import WeatherDisplay from './components/WeatherDisplay/WeatherDisplay.js';
+import Forecast from './components/Forecast/Forecast.js';
+import ErrorMessage from './components/ErrorMessage/ErrorMessage.js';
 import './App.css';
 
 function App() {
+  const { fetchWeather, error, hasSearched } = useContext(WeatherContext);
+
+  useEffect(() => {
+    fetchWeather();
+    const interval = setInterval(fetchWeather, 30000); // Refresh every 30s
+    return () => clearInterval(interval);
+  }, [fetchWeather]);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className="container">
+      <h1 className="header">Weather Dashboard</h1>
+      <SearchBar />
+      {hasSearched && error && <ErrorMessage message={error} />}
+      <WeatherDisplay />
+      <Forecast />
     </div>
   );
 }
 
-export default App;
+export default function WrappedApp() {
+  return (
+    <WeatherContextProvider>
+      <App />
+    </WeatherContextProvider>
+  );
+}
